@@ -27,6 +27,7 @@ export function createEnemy(type: EnemyType, x: number, y: number): EnemyEntity 
         shootCooldown: 0,
         shootCooldownMax: 9999,
         attackRange: GRUNT_ATTACK_RANGE,
+        frozenFrames: 0,
         id,
         renderer: EnemyRenderer,
       };
@@ -44,6 +45,7 @@ export function createEnemy(type: EnemyType, x: number, y: number): EnemyEntity 
         shootCooldown: 0,
         shootCooldownMax: SHOOTER_SHOOT_COOLDOWN,
         attackRange: SHOOTER_ATTACK_RANGE,
+        frozenFrames: 0,
         id,
         renderer: EnemyRenderer,
       };
@@ -61,6 +63,7 @@ export function createEnemy(type: EnemyType, x: number, y: number): EnemyEntity 
         shootCooldown: 0,
         shootCooldownMax: 9999,
         attackRange: TANK_ATTACK_RANGE,
+        frozenFrames: 0,
         id,
         renderer: EnemyRenderer,
       };

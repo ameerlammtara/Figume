@@ -11,6 +11,10 @@ export const inputState = {
     dirX: 0,
     dirY: 1,
   },
+  // One-shot ability triggers (consumed by systems)
+  abilityB: false,
+  abilityA: false,
+  abilitySignature: false,
 };
 
 // Shared game output state — written by game systems, read by React HUD
@@ -24,4 +28,9 @@ export const outputState = {
   gameOver: false,
   playerX: 180,
   playerY: 310,
+  blinkCd: 0,
+  blinkCdMax: 300,
+  glacierCd: 0,
+  glacierCdMax: 600,
+  signatureCharge: 0,
 };

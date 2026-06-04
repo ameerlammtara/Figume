@@ -28,6 +28,11 @@ export function MovementSystem(entities: Entities): Entities {
     const entity = entities[key];
     if (entity && entity.type === 'enemy') {
       const enemy = entity as EnemyEntity;
+      // Frozen enemies don't move; tick down their frozen timer
+      if (enemy.frozenFrames > 0) {
+        enemy.frozenFrames -= 1;
+        return;
+      }
       const newX = Math.max(
         enemy.radius,
         Math.min(ARENA_WIDTH - enemy.radius, enemy.position.x + enemy.velocity.x)

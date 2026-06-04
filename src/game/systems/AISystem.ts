@@ -20,6 +20,14 @@ export function AISystem(entities: Entities): Entities {
     if (!entity || entity.type !== 'enemy') return;
 
     const enemy: EnemyEntity = { ...entity };
+
+    // Frozen enemies make no decisions and don't shoot
+    if (enemy.frozenFrames > 0) {
+      enemy.velocity = { x: 0, y: 0 };
+      newEntities[key] = enemy;
+      return;
+    }
+
     const dx = player.position.x - enemy.position.x;
     const dy = player.position.y - enemy.position.y;
     const dist = Math.sqrt(dx * dx + dy * dy);

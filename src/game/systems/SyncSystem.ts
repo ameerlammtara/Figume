@@ -16,6 +16,11 @@ export function SyncSystem(entities: Entities): Entities {
     outputState.maxHealth = player.maxHealth;
     outputState.playerX = player.position.x;
     outputState.playerY = player.position.y;
+    outputState.blinkCd = player.blinkCooldown;
+    outputState.blinkCdMax = player.blinkCooldownMax;
+    outputState.glacierCd = player.glacierCooldown;
+    outputState.glacierCdMax = player.glacierCooldownMax;
+    outputState.signatureCharge = player.signatureCharge;
   }
   return entities;
 }

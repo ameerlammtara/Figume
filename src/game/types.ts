@@ -1,6 +1,7 @@
-export type EntityType = 'player' | 'enemy' | 'bullet';
+export type EntityType = 'player' | 'enemy' | 'bullet' | 'effect';
 export type EnemyType = 'grunt' | 'shooter' | 'tank';
 export type BulletOwner = 'player' | 'enemy';
+export type EffectKind = 'slash' | 'glacier' | 'frostflash';
 
 export interface Vec2 {
   x: number;
@@ -18,6 +19,15 @@ export interface PlayerEntity {
   shootCooldown: number;
   shootCooldownMax: number;
   invincibleFrames: number;
+  // Noah's kit cooldowns / state
+  meleeCooldown: number;
+  meleeCooldownMax: number;
+  blinkCooldown: number;
+  blinkCooldownMax: number;
+  glacierCooldown: number;
+  glacierCooldownMax: number;
+  signatureCharge: number; // 0-100
+  signatureShatterTimer: number; // 0 = inactive
   renderer: React.ComponentType<any>;
 }
 
@@ -34,6 +44,7 @@ export interface EnemyEntity {
   shootCooldown: number;
   shootCooldownMax: number;
   attackRange: number;
+  frozenFrames: number;
   id: string;
   renderer: React.ComponentType<any>;
 }
@@ -50,7 +61,20 @@ export interface BulletEntity {
   renderer: React.ComponentType<any>;
 }
 
-export type GameEntity = PlayerEntity | EnemyEntity | BulletEntity;
+export interface EffectEntity {
+  type: 'effect';
+  effectKind: EffectKind;
+  position: Vec2;
+  angle?: number;
+  radius?: number;
+  tickDamage?: number;
+  lifetime: number;
+  maxLifetime: number;
+  id: string;
+  renderer: React.ComponentType<any>;
+}
+
+export type GameEntity = PlayerEntity | EnemyEntity | BulletEntity | EffectEntity;
 
 export interface GameState {
   type: 'gameState';

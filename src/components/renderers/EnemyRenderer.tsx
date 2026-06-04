@@ -8,6 +8,7 @@ interface Props {
   maxHealth: number;
   radius: number;
   enemyType: EnemyType;
+  frozenFrames?: number;
   [key: string]: any;
 }
 
@@ -17,8 +18,9 @@ const ENEMY_COLORS: Record<string, { bg: string; border: string }> = {
   tank: { bg: '#922b21', border: '#6e1f19' },
 };
 
-export default function EnemyRenderer({ position, health, maxHealth, radius, enemyType }: Props) {
+export default function EnemyRenderer({ position, health, maxHealth, radius, enemyType, frozenFrames }: Props) {
   const size = radius * 2;
+  const isFrozen = (frozenFrames ?? 0) > 0;
   const healthPct = Math.max(0, health / maxHealth);
   const healthColor = healthPct > 0.6 ? '#2ecc71' : healthPct > 0.3 ? '#f1c40f' : '#e74c3c';
   const colors = ENEMY_COLORS[enemyType] || ENEMY_COLORS.grunt;
@@ -45,7 +47,7 @@ export default function EnemyRenderer({ position, health, maxHealth, radius, ene
             height: size,
             borderRadius: isSquare ? 4 : radius,
             backgroundColor: colors.bg,
-            borderColor: colors.border,
+            borderColor: isFrozen ? '#bfe9ff' : colors.border,
           },
         ]}
       >
@@ -53,6 +55,15 @@ export default function EnemyRenderer({ position, health, maxHealth, radius, ene
           <View style={[styles.eye, enemyType === 'tank' && styles.eyeLarge]} />
           <View style={[styles.eye, enemyType === 'tank' && styles.eyeLarge]} />
         </View>
+        {isFrozen && (
+          <View
+            style={[
+              styles.frostOverlay,
+              { borderRadius: isSquare ? 4 : radius },
+            ]}
+            pointerEvents="none"
+          />
+        )}
       </View>
     </View>
   );
@@ -98,5 +109,11 @@ const styles = StyleSheet.create({
     width: 9,
     height: 9,
     borderRadius: 4.5,
+  },
+  frostOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(174,240,255,0.5)',
+    borderWidth: 2,
+    borderColor: '#aef0ff',
   },
 });

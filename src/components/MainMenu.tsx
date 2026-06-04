@@ -21,7 +21,7 @@ export default function MainMenu({ onPlay }: MainMenuProps) {
             <View style={styles.playerIcon} />
           </View>
           <Text style={styles.title}>FIGUME</Text>
-          <Text style={styles.subtitle}>WAVE SHOOTER</Text>
+          <Text style={styles.subtitle}>NOAH · THE FROST BLADE</Text>
         </View>
 
         {/* Enemy showcase */}
@@ -35,10 +35,18 @@ export default function MainMenu({ onPlay }: MainMenuProps) {
 
         {/* How to play */}
         <View style={styles.howToPlay}>
+          <Text style={styles.howTitle}>NOAH'S FROST KIT</Text>
+          <Text style={styles.howText}>🗡️ Frost Combo — melee swing</Text>
+          <Text style={styles.howText}>⚡ Blink Slash — dash through foes</Text>
+          <Text style={styles.howText}>❄️ Glacier Field — freezing AoE</Text>
+          <Text style={styles.howText}>🌟 Absolute Zero — freeze & shatter</Text>
+        </View>
+
+        <View style={styles.howToPlay}>
           <Text style={styles.howTitle}>HOW TO PLAY</Text>
           <Text style={styles.howText}>🕹 Left joystick to move</Text>
-          <Text style={styles.howText}>👆 Tap right side to shoot</Text>
-          <Text style={styles.howText}>💀 Survive waves of enemies!</Text>
+          <Text style={styles.howText}>👆 Tap/aim right side to slash</Text>
+          <Text style={styles.howText}>💀 Survive endless frozen waves!</Text>
         </View>
 
         {/* Play button */}
@@ -92,9 +100,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#3498db',
+    backgroundColor: '#4db8e8',
     borderWidth: 3,
-    borderColor: '#2980b9',
+    borderColor: '#2c80b4',
   },
   title: {
     color: '#fff',

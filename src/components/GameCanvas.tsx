@@ -13,23 +13,37 @@ import { GameState, PlayerEntity } from '../game/types';
 import { createPlayer } from '../game/entities/Player';
 import { resetEnemyIdCounter } from '../game/entities/Enemy';
 import { resetBulletIdCounter } from '../game/entities/Bullet';
+import { resetEffectIdCounter } from '../game/entities/Effect';
 import { MovementSystem } from '../game/systems/MovementSystem';
 import { AISystem } from '../game/systems/AISystem';
 import { BulletSystem } from '../game/systems/BulletSystem';
 import { CollisionSystem } from '../game/systems/CollisionSystem';
 import { WaveSystem } from '../game/systems/WaveSystem';
-import { ShootSystem } from '../game/systems/ShootSystem';
+import { MeleeSystem } from '../game/systems/MeleeSystem';
+import { AbilitySystem } from '../game/systems/AbilitySystem';
+import { EffectSystem } from '../game/systems/EffectSystem';
 import { SyncSystem } from '../game/systems/SyncSystem';
 import { inputState, outputState } from '../game/inputState';
 import Joystick from './Joystick';
 import HUD from './HUD';
 import GameOverScreen from './GameOverScreen';
 
-const ALL_SYSTEMS = [MovementSystem, AISystem, ShootSystem, BulletSystem, CollisionSystem, WaveSystem, SyncSystem];
+const ALL_SYSTEMS = [
+  MovementSystem,
+  AISystem,
+  MeleeSystem,
+  AbilitySystem,
+  BulletSystem,
+  CollisionSystem,
+  EffectSystem,
+  WaveSystem,
+  SyncSystem,
+];
 
 function buildInitialEntities() {
   resetEnemyIdCounter();
   resetBulletIdCounter();
+  resetEffectIdCounter();
 
   // Reset input
   inputState.joystick.active = false;
@@ -38,6 +52,9 @@ function buildInitialEntities() {
   inputState.shoot.active = false;
   inputState.shoot.dirX = 0;
   inputState.shoot.dirY = 1;
+  inputState.abilityB = false;
+  inputState.abilityA = false;
+  inputState.abilitySignature = false;
 
   // Reset output
   outputState.health = 100;
@@ -47,6 +64,9 @@ function buildInitialEntities() {
   outputState.waveActive = false;
   outputState.waveDelay = 60;
   outputState.gameOver = false;
+  outputState.blinkCd = 0;
+  outputState.glacierCd = 0;
+  outputState.signatureCharge = 0;
 
   return {
     gameState: {
@@ -81,6 +101,9 @@ export default function GameCanvas({ onMenu }: GameCanvasProps) {
   const [hudState, setHudState] = useState({
     health: 100, maxHealth: 100, wave: 0, score: 0, waveActive: false, waveDelay: 0,
   });
+  const [abilityState, setAbilityState] = useState({
+    blinkCd: 0, blinkCdMax: 300, glacierCd: 0, glacierCdMax: 600, signatureCharge: 0,
+  });
   const [gameOver, setGameOver] = useState(false);
   const [finalScore, setFinalScore] = useState(0);
   const [finalWave, setFinalWave] = useState(0);
@@ -109,6 +132,13 @@ export default function GameCanvas({ onMenu }: GameCanvasProps) {
         score: outputState.score,
         waveActive: outputState.waveActive,
         waveDelay: outputState.waveDelay,
+      });
+      setAbilityState({
+        blinkCd: outputState.blinkCd,
+        blinkCdMax: outputState.blinkCdMax,
+        glacierCd: outputState.glacierCd,
+        glacierCdMax: outputState.glacierCdMax,
+        signatureCharge: outputState.signatureCharge,
       });
     }, 80);
     return () => clearInterval(interval);
@@ -159,6 +189,16 @@ export default function GameCanvas({ onMenu }: GameCanvasProps) {
     autoShootRef.current = next;
     inputState.shoot.autoShoot = next;
     setAutoShoot(next);
+  }, []);
+
+  const triggerBlink = useCallback(() => {
+    inputState.abilityB = true;
+  }, []);
+  const triggerGlacier = useCallback(() => {
+    inputState.abilityA = true;
+  }, []);
+  const triggerSignature = useCallback(() => {
+    inputState.abilitySignature = true;
   }, []);
 
   const handleRestart = useCallback(() => {
@@ -249,8 +289,43 @@ export default function GameCanvas({ onMenu }: GameCanvasProps) {
             <Text style={styles.autoShootText}>{autoShoot ? 'AUTO ✓' : 'AUTO'}</Text>
           </TouchableOpacity>
           <View style={styles.shootBtn}>
-            <Text style={styles.shootBtnText}>🔥</Text>
+            <Text style={styles.shootBtnText}>🗡️</Text>
           </View>
+        </View>
+
+        {/* Ability buttons column (above the aim responder) */}
+        <View style={styles.abilityColumn} pointerEvents="box-none">
+          <TouchableOpacity style={styles.abilityBtn} onPress={triggerBlink} activeOpacity={0.8}>
+            <Text style={styles.abilityIcon}>⚡</Text>
+            <Text style={styles.abilityLabel}>BLINK</Text>
+            {abilityState.blinkCd > 0 && (
+              <View style={styles.cdOverlay}>
+                <Text style={styles.cdText}>{Math.ceil(abilityState.blinkCd / 60)}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.abilityBtn} onPress={triggerGlacier} activeOpacity={0.8}>
+            <Text style={styles.abilityIcon}>❄️</Text>
+            <Text style={styles.abilityLabel}>GLACIER</Text>
+            {abilityState.glacierCd > 0 && (
+              <View style={styles.cdOverlay}>
+                <Text style={styles.cdText}>{Math.ceil(abilityState.glacierCd / 60)}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.signatureBtn, abilityState.signatureCharge >= 100 && styles.signatureReady]}
+            onPress={triggerSignature}
+            activeOpacity={0.8}
+            disabled={abilityState.signatureCharge < 100}
+          >
+            <Text style={styles.abilityIcon}>🌟</Text>
+            <Text style={styles.signatureLabel}>
+              {abilityState.signatureCharge >= 100 ? 'ABSOLUTE ZERO' : `${Math.floor(abilityState.signatureCharge)}%`}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -335,5 +410,69 @@ const styles = StyleSheet.create({
   },
   shootBtnText: {
     fontSize: 28,
+  },
+  abilityColumn: {
+    position: 'absolute',
+    right: 10,
+    bottom: 100,
+    gap: 8,
+    alignItems: 'center',
+  },
+  abilityBtn: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: 'rgba(45,128,180,0.45)',
+    borderWidth: 2,
+    borderColor: '#7fd4f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  abilityIcon: {
+    fontSize: 20,
+  },
+  abilityLabel: {
+    color: '#eafcff',
+    fontSize: 8,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  cdOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cdText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '900',
+  },
+  signatureBtn: {
+    minWidth: 70,
+    paddingHorizontal: 8,
+    height: 50,
+    borderRadius: 12,
+    backgroundColor: 'rgba(80,80,90,0.5)',
+    borderWidth: 2,
+    borderColor: 'rgba(180,180,200,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  signatureReady: {
+    backgroundColor: 'rgba(174,240,255,0.55)',
+    borderColor: '#ffffff',
+    shadowColor: '#aef0ff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  signatureLabel: {
+    color: '#fff',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 0.5,
   },
 });

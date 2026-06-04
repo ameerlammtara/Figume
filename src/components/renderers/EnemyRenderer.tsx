@@ -1,9 +1,14 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { EnemyEntity } from '../../game/types';
+import { Vec2, EnemyType } from '../../game/types';
 
 interface Props {
-  entity: EnemyEntity;
+  position: Vec2;
+  health: number;
+  maxHealth: number;
+  radius: number;
+  enemyType: EnemyType;
+  [key: string]: any;
 }
 
 const ENEMY_COLORS: Record<string, { bg: string; border: string }> = {
@@ -12,12 +17,11 @@ const ENEMY_COLORS: Record<string, { bg: string; border: string }> = {
   tank: { bg: '#922b21', border: '#6e1f19' },
 };
 
-export default function EnemyRenderer({ entity }: Props) {
-  const { position, health, maxHealth, radius, enemyType } = entity;
+export default function EnemyRenderer({ position, health, maxHealth, radius, enemyType }: Props) {
   const size = radius * 2;
   const healthPct = Math.max(0, health / maxHealth);
   const healthColor = healthPct > 0.6 ? '#2ecc71' : healthPct > 0.3 ? '#f1c40f' : '#e74c3c';
-  const colors = ENEMY_COLORS[enemyType];
+  const colors = ENEMY_COLORS[enemyType] || ENEMY_COLORS.grunt;
   const isSquare = enemyType === 'shooter';
 
   return (
@@ -26,17 +30,13 @@ export default function EnemyRenderer({ entity }: Props) {
         styles.container,
         {
           left: position.x - radius,
-          top: position.y - radius,
-          width: size,
-          height: size,
+          top: position.y - radius - 12,
         },
       ]}
     >
-      {/* Health bar */}
-      <View style={[styles.healthBg, { width: size + 4 }]}>
+      <View style={[styles.healthBg, { width: size + 8 }]}>
         <View style={[styles.healthFill, { width: `${healthPct * 100}%`, backgroundColor: healthColor }]} />
       </View>
-      {/* Enemy body */}
       <View
         style={[
           styles.body,
@@ -49,7 +49,6 @@ export default function EnemyRenderer({ entity }: Props) {
           },
         ]}
       >
-        {/* Angry eyes */}
         <View style={styles.eyeRow}>
           <View style={[styles.eye, enemyType === 'tank' && styles.eyeLarge]} />
           <View style={[styles.eye, enemyType === 'tank' && styles.eyeLarge]} />

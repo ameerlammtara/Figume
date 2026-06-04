@@ -1,18 +1,17 @@
-import { Entities, PlayerEntity, EnemyEntity, JoystickState } from '../types';
+import { Entities, PlayerEntity, EnemyEntity } from '../types';
 import { ARENA_WIDTH, ARENA_HEIGHT } from '../constants';
+import { inputState } from '../inputState';
 
-export function MovementSystem(entities: Entities, { time }: { time: any }): Entities {
+export function MovementSystem(entities: Entities): Entities {
   const gameState = entities.gameState;
   if (gameState.gameOver) return entities;
 
-  const joystick: JoystickState = entities.joystickState;
   const player: PlayerEntity = entities.player;
 
   // Move player based on joystick
-  if (joystick.active) {
-    const newX = player.position.x + joystick.direction.x * player.speed;
-    const newY = player.position.y + joystick.direction.y * player.speed;
-
+  if (inputState.joystick.active) {
+    const newX = player.position.x + inputState.joystick.dx * player.speed;
+    const newY = player.position.y + inputState.joystick.dy * player.speed;
     player.position = {
       x: Math.max(player.radius, Math.min(ARENA_WIDTH - player.radius, newX)),
       y: Math.max(player.radius, Math.min(ARENA_HEIGHT - player.radius, newY)),

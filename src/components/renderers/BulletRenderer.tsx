@@ -1,13 +1,15 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { BulletEntity } from '../../game/types';
+import { Vec2, BulletOwner } from '../../game/types';
 
 interface Props {
-  entity: BulletEntity;
+  position: Vec2;
+  radius: number;
+  owner: BulletOwner;
+  [key: string]: any;
 }
 
-export default function BulletRenderer({ entity }: Props) {
-  const { position, radius, owner } = entity;
+export default function BulletRenderer({ position, radius, owner }: Props) {
   const size = radius * 2;
   const color = owner === 'player' ? '#f1c40f' : '#ff6b6b';
   const borderColor = owner === 'player' ? '#e67e22' : '#c0392b';

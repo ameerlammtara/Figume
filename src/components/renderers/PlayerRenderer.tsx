@@ -1,13 +1,17 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { PlayerEntity } from '../../game/types';
+import { Vec2 } from '../../game/types';
 
 interface Props {
-  entity: PlayerEntity;
+  position: Vec2;
+  health: number;
+  maxHealth: number;
+  radius: number;
+  invincibleFrames: number;
+  [key: string]: any;
 }
 
-export default function PlayerRenderer({ entity }: Props) {
-  const { position, health, maxHealth, radius, invincibleFrames } = entity;
+export default function PlayerRenderer({ position, health, maxHealth, radius, invincibleFrames }: Props) {
   const size = radius * 2;
   const healthPct = Math.max(0, health / maxHealth);
   const healthColor = healthPct > 0.6 ? '#2ecc71' : healthPct > 0.3 ? '#f1c40f' : '#e74c3c';
@@ -19,20 +23,15 @@ export default function PlayerRenderer({ entity }: Props) {
         styles.container,
         {
           left: position.x - radius,
-          top: position.y - radius,
-          width: size,
-          height: size,
+          top: position.y - radius - 12,
           opacity: isFlashing ? 0.3 : 1,
         },
       ]}
     >
-      {/* Health bar background */}
-      <View style={styles.healthBg}>
+      <View style={[styles.healthBg, { width: size + 8 }]}>
         <View style={[styles.healthFill, { width: `${healthPct * 100}%`, backgroundColor: healthColor }]} />
       </View>
-      {/* Player body */}
       <View style={[styles.body, { width: size, height: size, borderRadius: radius }]}>
-        {/* Eye highlights */}
         <View style={styles.eyeLeft} />
         <View style={styles.eyeRight} />
       </View>
@@ -46,7 +45,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   healthBg: {
-    width: 44,
     height: 5,
     backgroundColor: '#333',
     borderRadius: 3,
